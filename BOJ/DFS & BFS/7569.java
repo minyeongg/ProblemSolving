@@ -25,13 +25,9 @@ public class Main {
                     board[i][j][k] = Integer.parseInt(st.nextToken());
                     if (board[i][j][k] == 1) {
                         q.add(new Point(i, j, k));
-                        dist[i][j][k] = 0; // Set initial distance to 0 for ripe tomatoes
                     }
-                    else if (board[i][j][k] == 0) {
+                    if (board[i][j][k] == 0) {
                         dist[i][j][k] = -1; // Mark unripe tomatoes with -1 distance
-                    }
-                    else { // For board[i][j][k] == -1 (empty)
-                        dist[i][j][k] = 0; // Empty spaces don't need to be considered
                     }
                 }
             }

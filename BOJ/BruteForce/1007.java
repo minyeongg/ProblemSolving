@@ -1,3 +1,6 @@
+/* 순열 함수 구하는 방법인데 이 방법은 사용하지 않았고 일단 기록만 해둔거임 */
+
+
 import java.io.*;
 import java.util.*;
 

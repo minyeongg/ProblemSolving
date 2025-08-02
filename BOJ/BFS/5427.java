@@ -1,0 +1,95 @@
+import java.util.*;
+import java.io.*;
+
+class Main {
+    static int TC, bX, bY;
+    static int[][] board = new int[1002][1002];
+    static int[][] visF = new int[1002][1002];
+    static int[][] visS = new int[1002][1002];
+    static int[] dx = {0, 0, 1, -1};
+    static int[] dy = {1, -1, 0, 0};
+    
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        
+        TC = Integer.parseInt(br.readLine());
+        
+        for (int testNo = 0; testNo < TC; testNo++) {
+            boolean escape = false;
+            Queue<int[]> Qf = new ArrayDeque<>();
+            Queue<int[]> Qs = new ArrayDeque<>();
+            
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            bY = Integer.parseInt(st.nextToken());
+            bX = Integer.parseInt(st.nextToken());
+            
+            // 배열 초기화
+            for (int i = 0; i < bX; i++) {
+                for (int j = 0; j < bY; j++) {
+                    visF[i][j] = 0;
+                    visS[i][j] = 0;
+                }
+            }
+            
+            for (int i = 0; i < bX; i++) {
+                String line = br.readLine();
+                for (int j = 0; j < bY; j++) {
+                    char c = line.charAt(j);
+                    if (c == '#') {
+                        board[i][j] = -1;
+                    } else {
+                        if (c == '@') {
+                            Qs.offer(new int[]{i, j});
+                            visS[i][j] = 1;
+                        } else if (c == '*') {
+                            Qf.offer(new int[]{i, j});
+                            visF[i][j] = 1;
+                        }
+                        board[i][j] = 0;
+                    }
+                }
+            }
+            
+            // 불 확산 BFS
+            while (!Qf.isEmpty()) {
+                int[] v = Qf.poll();
+                for (int k = 0; k < 4; k++) {
+                    int nx = v[0] + dx[k];
+                    int ny = v[1] + dy[k];
+                    if (nx < 0 || bX <= nx || ny < 0 || bY <= ny) continue;
+                    if (board[nx][ny] == -1) continue;
+                    if (visF[nx][ny] != 0) continue;
+                    visF[nx][ny] = visF[v[0]][v[1]] + 1;
+                    Qf.offer(new int[]{nx, ny});
+                }
+            }
+            
+            // 사람 이동 BFS
+            while (!Qs.isEmpty() && !escape) {
+                int[] v = Qs.poll();
+                for (int k = 0; k < 4; k++) {
+                    int nx = v[0] + dx[k];
+                    int ny = v[1] + dy[k];
+                    if (nx < 0 || bX <= nx || ny < 0 || bY <= ny) {
+                        bw.write(visS[v[0]][v[1]] + "\n");
+                        escape = true;
+                        break;
+                    }
+                    if (board[nx][ny] == -1) continue;
+                    if (visS[nx][ny] != 0) continue;
+                    if (visF[nx][ny] != 0 && visF[nx][ny] <= visS[v[0]][v[1]] + 1) continue;
+                    visS[nx][ny] = visS[v[0]][v[1]] + 1;
+                    Qs.offer(new int[]{nx, ny});
+                }
+            }
+            
+            if (!escape) {
+                bw.write("IMPOSSIBLE\n");
+            }
+        }
+        
+        bw.flush();
+        bw.close();
+    }
+}

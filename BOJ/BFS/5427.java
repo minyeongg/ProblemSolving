@@ -93,3 +93,80 @@ class Main {
         bw.close();
     }
 }
+
+
+import java.util.*;
+import java.io.*;
+
+/*
+fire: -1 (빈공간, 상근 시작위치) 0 (벽, 불 시작위치)
+move: -1 (빈공간, 불 시작 위치) 0 (벽, 상근시작위치)
+*/
+class Main {
+    static int[] dx = {1, 0, -1, 0};
+    static int[] dy = {0, 1, 0, -1};
+    static char[][] map = new char[1000][1000];
+    static Queue<int[]> f = new LinkedList<>();
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int t = Integer.parseInt(br.readLine());
+        while (t-- > 0) {
+            String[] str = br.readLine().split(" ");
+            int w = Integer.parseInt(str[0]);
+            int h = Integer.parseInt(str[1]);
+            int[][] move = new int[h][w];
+            int[][] fire = new int[h][w];
+            Queue<int[]> sg = new LinkedList<>();
+            for (int i = 0; i < h; i++) {
+                String s = br.readLine();
+                for (int j = 0; j < w; j++) {
+                    map[i][j] = s.substring(j, j+1).charAt(0);
+                    if (map[i][j] == '*') {
+                        f.add(new int[]{i, j});
+                        move[i][j] = -1;
+                    }
+                    if (map[i][j] == '@') {
+                        sg.add(new int[]{i, j});
+                        fire[i][j] = -1;
+                    }
+                    if (map[i][j] == '.') {
+                        move[i][j] = -1;
+                        fire[i][j] = -1;
+                    }
+                }
+            }
+            
+            while(!f.isEmpty()) {
+                int[] cur = f.poll();
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur[0] + dx[dir];
+                    int ny = cur[1] + dy[dir];
+                    if (nx < 0 || ny < 0 || nx >= h || ny >= w) continue;
+                    if (fire[nx][ny] >= 0) continue;
+                    fire[nx][ny] = fire[cur[0]][cur[1]] + 1;
+                    f.add(new int[]{nx, ny});
+                }
+            }
+            boolean escape = false;
+            while (!sg.isEmpty() && !escape) {
+                int[] cur = sg.poll();
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur[0] + dx[dir];
+                    int ny = cur[1] + dy[dir];
+                    if (nx < 0 || ny < 0 || nx >= h || ny >= w) {
+                        System.out.println(move[cur[0]][cur[1]] + 1);
+                        escape = true;
+                        break;
+                    }
+                    if (move[nx][ny] >= 0) continue;
+                    if (fire[nx][ny] != -1 && move[cur[0]][cur[1]] + 1 >= fire[nx][ny]) continue;
+                    move[nx][ny] = move[cur[0]][cur[1]] + 1;
+                    sg.add(new int[]{nx, ny});
+                }
+            }
+            if (!escape) {
+                System.out.println("IMPOSSIBLE");
+            }
+        }
+    }
+}

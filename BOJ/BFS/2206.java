@@ -70,3 +70,90 @@ public class Main {
         System.out.println(bfs());
     }
 }
+
+
+/*
+dist = int[n][m][2]
+dist[n][m][0] 이랑 dist[n][m][1] 중 더 작은 값 출력
+만약 저 값들이 둘다 -1이면 -1 출력
+*/
+
+import java.util.*;
+import java.io.*;
+
+class Main {
+    static int[] dx = {1, 0, -1, 0};
+    static int[] dy = {0, 1, 0, -1};
+    private static class Point {
+        int x;
+        int y;
+        boolean broken;
+        Point(int x, int y, boolean broken) {
+            this.x = x;
+            this.y = y;
+            this.broken = broken;
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] str = br.readLine().split(" ");
+        int n = Integer.parseInt(str[0]);
+        int m = Integer.parseInt(str[1]);
+        int[][] map = new int[n][m];
+        int[][][] dist = new int[n][m][2];
+        for (int i = 0; i < n; i++) {
+            String s = br.readLine();
+            for (int j = 0; j < m; j++) {
+                map[i][j] = Integer.parseInt(s.substring(j, j+1));
+            }
+        }
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(0, 0, false));
+        dist[0][0][0] = 1;
+        while (!q.isEmpty()) {
+            Point cur = q.poll(); // broken = true or false
+            boolean broken = cur.broken;
+            if (broken) { // 일반탐색만 가능
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur.x + dx[dir];
+                    int ny = cur.y + dy[dir];
+                    if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
+                    if (dist[nx][ny][1] > 0) continue;
+                    if (map[nx][ny] == 0) {
+                        q.add(new Point(nx, ny, broken));
+                        dist[nx][ny][1] = dist[cur.x][cur.y][1] + 1;
+                    }
+                }
+            } else { // 일반탐색 또는 특수탐색
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur.x + dx[dir];
+                    int ny = cur.y + dy[dir];
+                    if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
+                    if (dist[nx][ny][0] > 0) continue;
+                    if (map[nx][ny] == 0) {
+                        q.add(new Point(nx, ny, broken));
+                        dist[nx][ny][0] = dist[cur.x][cur.y][0] + 1;
+                    }
+                }
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur.x + dx[dir];
+                    int ny = cur.y + dy[dir];
+                    if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
+                    if (map[nx][ny] == 1) {
+                        q.add(new Point(nx, ny, true));
+                        dist[nx][ny][1] = dist[cur.x][cur.y][0] + 1;
+                    }
+                }
+            }  
+        }
+        if (dist[n-1][m-1][0] == 0 && dist[n-1][m-1][1] == 0) {
+            System.out.println(-1);
+            return;
+        }
+        if (dist[n-1][m-1][0] == 0 || dist[n-1][m-1][1] == 0) {
+            System.out.println(Math.max(dist[n-1][m-1][0], dist[n-1][m-1][1]));
+            return;
+        }
+        System.out.println(Math.min(dist[n-1][m-1][0], dist[n-1][m-1][1]));
+    }
+}

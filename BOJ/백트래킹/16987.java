@@ -1,60 +1,54 @@
 import java.util.*;
 
-class Main {
-    
-    static int max = 0;
-    static int[][] egg;
-    static int[] dx = {1, 0, -1, 0};
-    static int[] dy = {0, 1, 0, -1};
+public class Main {
+
     static int n;
-    
+    static int[] s = new int[10]; // 내구도
+    static int[] w = new int[10]; // 무게
+    static int mx = 0;
+    static int cnt = 0; // 깨져있는 계란 수
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         n = sc.nextInt();
-        egg = new int[n][2];
-            
         for (int i = 0; i < n; i++) {
-            egg[i][0] = sc.nextInt();
-            egg[i][1] = sc.nextInt();
+            s[i] = sc.nextInt();
+            w[i] = sc.nextInt();
         }
-            
-        if (n == 1) {
-            System.out.println(0);
-            return;
-        }
-            
-        dfs(0);
-            
-        System.out.println(max);
-            
+
+        solve(0);
+
+        System.out.println(mx);
     }
-    
-    private static void dfs(int idx) {
-        if (idx == n) {
-            int cnt = 0;
-            for (int i = 0; i < n; i++) {
-                if (egg[i][0] <= 0) cnt++;
-            }
-            max = Math.max(max, cnt);
+
+    static void solve(int a) {
+        if (a == n) {
+            mx = Math.max(mx, cnt);
             return;
         }
-        if (egg[idx][0] <= 0) {
-            dfs(idx + 1);
+
+        // a번째 계란이 깨져있거나, 나머지 계란이 다 깨져있으면 넘어감
+        if (s[a] <= 0 || cnt == n - 1) {
+            solve(a + 1);
             return;
         }
-        boolean remain = false;
-        for (int i = 0; i < n; i++) {
-            if (i == idx) continue;
-            if (egg[i][0] > 0) {
-                remain = true;
-                egg[idx][0] -= egg[i][1];
-                egg[i][0] -= egg[idx][1];
-                dfs(idx + 1);
-                egg[idx][0] += egg[i][1];
-                egg[i][0] += egg[idx][1];
-            }
+
+        for (int t = 0; t < n; t++) {
+            if (t == a || s[t] <= 0) continue;
+
+            s[a] -= w[t];
+            s[t] -= w[a];
+
+            if (s[a] <= 0) cnt++;
+            if (s[t] <= 0) cnt++;
+
+            solve(a + 1);
+
+            if (s[a] <= 0) cnt--;
+            if (s[t] <= 0) cnt--;
+
+            s[a] += w[t];
+            s[t] += w[a];
         }
-        if (!remain) dfs(idx + 1);
     }
 }
-        

@@ -1,172 +1,78 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 class Main {
-    static int TC, bX, bY;
-    static int[][] board = new int[1002][1002];
-    static int[][] visF = new int[1002][1002];
-    static int[][] visS = new int[1002][1002];
-    static int[] dx = {0, 0, 1, -1};
-    static int[] dy = {1, -1, 0, 0};
-    
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        
-        TC = Integer.parseInt(br.readLine());
-        
-        for (int testNo = 0; testNo < TC; testNo++) {
-            boolean escape = false;
-            Queue<int[]> Qf = new ArrayDeque<>();
-            Queue<int[]> Qs = new ArrayDeque<>();
-            
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            bY = Integer.parseInt(st.nextToken());
-            bX = Integer.parseInt(st.nextToken());
-            
-            // 배열 초기화
-            for (int i = 0; i < bX; i++) {
-                for (int j = 0; j < bY; j++) {
-                    visF[i][j] = 0;
-                    visS[i][j] = 0;
-                }
-            }
-            
-            for (int i = 0; i < bX; i++) {
-                String line = br.readLine();
-                for (int j = 0; j < bY; j++) {
-                    char c = line.charAt(j);
-                    if (c == '#') {
-                        board[i][j] = -1;
-                    } else {
-                        if (c == '@') {
-                            Qs.offer(new int[]{i, j});
-                            visS[i][j] = 1;
-                        } else if (c == '*') {
-                            Qf.offer(new int[]{i, j});
-                            visF[i][j] = 1;
-                        }
-                        board[i][j] = 0;
-                    }
-                }
-            }
-            
-            // 불 확산 BFS
-            while (!Qf.isEmpty()) {
-                int[] v = Qf.poll();
-                for (int k = 0; k < 4; k++) {
-                    int nx = v[0] + dx[k];
-                    int ny = v[1] + dy[k];
-                    if (nx < 0 || bX <= nx || ny < 0 || bY <= ny) continue;
-                    if (board[nx][ny] == -1) continue;
-                    if (visF[nx][ny] != 0) continue;
-                    visF[nx][ny] = visF[v[0]][v[1]] + 1;
-                    Qf.offer(new int[]{nx, ny});
-                }
-            }
-            
-            // 사람 이동 BFS
-            while (!Qs.isEmpty() && !escape) {
-                int[] v = Qs.poll();
-                for (int k = 0; k < 4; k++) {
-                    int nx = v[0] + dx[k];
-                    int ny = v[1] + dy[k];
-                    if (nx < 0 || bX <= nx || ny < 0 || bY <= ny) {
-                        bw.write(visS[v[0]][v[1]] + "\n");
-                        escape = true;
-                        break;
-                    }
-                    if (board[nx][ny] == -1) continue;
-                    if (visS[nx][ny] != 0) continue;
-                    if (visF[nx][ny] != 0 && visF[nx][ny] <= visS[v[0]][v[1]] + 1) continue;
-                    visS[nx][ny] = visS[v[0]][v[1]] + 1;
-                    Qs.offer(new int[]{nx, ny});
-                }
-            }
-            
-            if (!escape) {
-                bw.write("IMPOSSIBLE\n");
-            }
-        }
-        
-        bw.flush();
-        bw.close();
-    }
-}
-
-
-import java.util.*;
-import java.io.*;
-
-/*
-fire: -1 (빈공간, 상근 시작위치) 0 (벽, 불 시작위치)
-move: -1 (빈공간, 불 시작 위치) 0 (벽, 상근시작위치)
-*/
-class Main {
+    static int w, h;
+    static char[][] map = new char[1002][1002];
+    static int[][] fire = new int[1002][1002];
+    static int[][] move = new int[1002][1002];
     static int[] dx = {1, 0, -1, 0};
     static int[] dy = {0, 1, 0, -1};
-    static char[][] map = new char[1000][1000];
-    static Queue<int[]> f = new LinkedList<>();
+    static boolean oob(int x, int y) {
+        return (x < 0 || x >= h || y < 0 || y >= w);
+    }
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int t = Integer.parseInt(br.readLine());
-        while (t-- > 0) {
-            String[] str = br.readLine().split(" ");
-            int w = Integer.parseInt(str[0]);
-            int h = Integer.parseInt(str[1]);
-            int[][] move = new int[h][w];
-            int[][] fire = new int[h][w];
-            Queue<int[]> sg = new LinkedList<>();
+        int T = Integer.parseInt(br.readLine());
+        while (T-- > 0) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            w = Integer.parseInt(st.nextToken());
+            h = Integer.parseInt(st.nextToken());
+            fire = new int[h][w];
+            move = new int[h][w];
+            Queue<int[]> f = new LinkedList<>();
+            Queue<int[]> m = new LinkedList<>();
             for (int i = 0; i < h; i++) {
-                String s = br.readLine();
+                Arrays.fill(fire[i], -1);
+                Arrays.fill(move[i], -1);
+            }
+            for (int i = 0; i < h; i++) {
+                char[] ch = br.readLine().toCharArray();
                 for (int j = 0; j < w; j++) {
-                    map[i][j] = s.substring(j, j+1).charAt(0);
+                    map[i][j] = ch[j];
+                    if (map[i][j] == '@') {
+                        m.add(new int[]{i, j});
+                        move[i][j] = 0;
+                    }
                     if (map[i][j] == '*') {
                         f.add(new int[]{i, j});
-                        move[i][j] = -1;
-                    }
-                    if (map[i][j] == '@') {
-                        sg.add(new int[]{i, j});
-                        fire[i][j] = -1;
-                    }
-                    if (map[i][j] == '.') {
-                        move[i][j] = -1;
-                        fire[i][j] = -1;
+                        fire[i][j] = 0;
                     }
                 }
             }
             
-            while(!f.isEmpty()) {
+            while (!f.isEmpty()) {
                 int[] cur = f.poll();
                 for (int dir = 0; dir < 4; dir++) {
                     int nx = cur[0] + dx[dir];
                     int ny = cur[1] + dy[dir];
-                    if (nx < 0 || ny < 0 || nx >= h || ny >= w) continue;
-                    if (fire[nx][ny] >= 0) continue;
-                    fire[nx][ny] = fire[cur[0]][cur[1]] + 1;
+                    if (oob(nx, ny)) continue;
+                    if (fire[nx][ny] > -1) continue;
+                    if (map[nx][ny] == '#') continue;
                     f.add(new int[]{nx, ny});
+                    fire[nx][ny] = fire[cur[0]][cur[1]] + 1;
                 }
             }
             boolean escape = false;
-            while (!sg.isEmpty() && !escape) {
-                int[] cur = sg.poll();
+            while(!escape && !m.isEmpty()) {
+                int[] cur = m.poll();
                 for (int dir = 0; dir < 4; dir++) {
                     int nx = cur[0] + dx[dir];
                     int ny = cur[1] + dy[dir];
-                    if (nx < 0 || ny < 0 || nx >= h || ny >= w) {
+                    if (oob(nx, ny)) {
                         System.out.println(move[cur[0]][cur[1]] + 1);
                         escape = true;
                         break;
                     }
-                    if (move[nx][ny] >= 0) continue;
-                    if (fire[nx][ny] != -1 && move[cur[0]][cur[1]] + 1 >= fire[nx][ny]) continue;
+                    if (move[nx][ny] > -1) continue;
+                    if (map[nx][ny] == '#') continue;
+                    if (fire[nx][ny] >= 0 && fire[nx][ny] <= move[cur[0]][cur[1]] + 1) continue;
+                    m.add(new int[]{nx, ny});
                     move[nx][ny] = move[cur[0]][cur[1]] + 1;
-                    sg.add(new int[]{nx, ny});
                 }
             }
-            if (!escape) {
-                System.out.println("IMPOSSIBLE");
-            }
+            if (escape) continue;
+            System.out.println("IMPOSSIBLE");
         }
     }
 }

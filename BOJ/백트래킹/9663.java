@@ -1,33 +1,33 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 class Main {
-    static int cnt = 0;
-    static int n;
-    static boolean[] isused1 = new boolean[30];
-    static boolean[] isused2 = new boolean[30];
-    static boolean[] isused3 = new boolean[30];
+    static int n, cnt;
+    static int[] queenCol;
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         n = sc.nextInt();
-        func(0);
+        queenCol = new int[n];
+        solution(0);
         System.out.println(cnt);
     }
-    private static void func(int cur) {
-        if (cur == n) {
-           cnt++;
-           return;
+    static void solution(int row) {
+        if (row == n) {
+            cnt++;
+            return;
         }
-        for (int i = 0; i < n; i++) {
-            if (isused1[i] || isused2[i + cur] || isused3[i - cur + n - 1])
-                continue;
-            isused1[i] = true;
-            isused2[i + cur] = true;
-            isused3[i - cur + n - 1] = true;
-            func(cur + 1);
-            isused1[i] = false;
-            isused2[i + cur] = false;
-            isused3[i - cur + n - 1] = false;
+        for (int col = 0; col < n; col++) {
+            if (isSafe(row, col)) {
+                queenCol[row] = col;
+                solution(row + 1);
+            }
         }
+    }
+    static boolean isSafe(int row, int col) {
+        for (int i = 0; i < row; i++) {
+            if (queenCol[i] == col) return false;
+            if (Math.abs(row - i) == Math.abs(col - queenCol[i])) return false;
+        }
+        return true;
     }
 }

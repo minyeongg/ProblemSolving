@@ -1,0 +1,67 @@
+import java.io.*;
+import java.util.*;
+
+public class TopologicalSort {
+	static int n, m; // 정점의 개수와 간선의 개수를 입력받음
+	static int[] deg; // 각 정점의 진입 차수를 저장
+	static List<Integer>[] adj; // 인접 리스트
+	
+	static void sort() {
+		Queue<Integer> q = new ArrayDeque<>();
+		StringBuilder sb = new StringBuilder();
+		
+		// 4. 진입차수가 0인 노드를 큐에 삽입
+		for(int i = 1; i <= n; i++) {
+			if (deg[i] == 0) {
+				q.offer(i);
+			}
+		}
+		
+		// 5. 큐가 빌 때까지 반복
+		while (!q.isEmpty()) {
+			int cur = q.poll();
+			sb.append(cur).append(" ");
+			
+			// 현재 노드와 연결된 노드들의 진입 차수 감소
+			for (int next : adj[cur]) {
+				deg[next]--;
+				
+				// 차수가 0이 되면 큐에 삽입
+				if (deg[next] == 0) {
+					q.offer(next);
+				}
+			}
+		}
+		
+		System.out.println(sb);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		
+		n = Integer.parseInt(st.nextToken());
+		m = Integer.parseInt(st.nextToken());
+		
+		// 1. 인접 리스트 및 차수 배열 초기화
+		adj = new ArrayList[n + 1];
+		deg = new int[n + 1];
+		for (int i = 1; i <= n; i++) {
+			adj[i] = new ArrayList<>();
+		}
+		
+		// 2. 그래프 데이터 입력
+		for (int i = 0; i < m; i++) {
+			st = new StringTokenizer(br.readLine());
+			int a = Integer.parseInt(st.nextToken());
+			int b = Integer.parseInt(st.nextToken());
+			
+			adj[a].add(b);
+			deg[b]++;
+		}
+		
+		// 3. 위상정렬 수행
+		sort();
+	}
+
+}

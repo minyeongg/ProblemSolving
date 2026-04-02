@@ -55,7 +55,6 @@ public class Main {
             int index = node.index;
             int cost = node.cost;
             if (v[index]) continue;
-            if (dist[index] != cost) continue;
             mst += cost;
             v[index] = true;
             for (int i = 0; i < graph[index].size(); i++) {

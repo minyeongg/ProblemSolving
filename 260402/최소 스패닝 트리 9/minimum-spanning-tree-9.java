@@ -42,6 +42,7 @@ public class Main {
             int end = Integer.parseInt(st.nextToken());
             int cost = Integer.parseInt(st.nextToken());
             graph[start].add(new Node(cost, end));
+            graph[end].add(new Node(cost, start));
         }
 
         int mst = 0;

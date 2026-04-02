@@ -25,22 +25,25 @@ public class Main {
     
     public static int[] p = new int[MAX_N + 1]; // 부모노드 배열
     
-    public static int find(int x) {
+    static int find(int x) {
         if(p[x] < 0)
             return x;
         return p[x] = find(p[x]); // 루트노드가 될 때까지 탐색
     }
     
-    public static void union(int x, int y) {
+    static boolean union(int x, int y) {
         int X = find(x);
         int Y = find(y);
-        if (X >= Y) {
-            p[x] = p[y];
-            Y--;
+        if (X == Y) return false;
+        if (p[X] < p[Y]) {
+            p[Y] = X;
+        } else if (p[X] > p[Y]){
+            p[X] = Y;
         } else {
-            p[y] = p[x];
-            X--;
+            p[Y] = X;
+            p[X]--;
         }
+        return true;
     }
 
     public static void main(String[] args) throws Exception {
@@ -72,8 +75,7 @@ public class Main {
             int end = cur.end;
             int weight = cur.weight;
 
-            if (find(start) == find(end)) continue;
-            union(start, end);
+            if (!union(start, end)) continue;
             mst += weight;
             if (++cnt == n - 1) break;
         }
@@ -81,3 +83,4 @@ public class Main {
         System.out.println(mst);
     }
 }
+

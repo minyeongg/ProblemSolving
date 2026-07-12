@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-class Solution {
+class 오픈 채팅방 {
     public String[] solution(String[] record) {
         Map<String, String> hm = new HashMap<>();
         // record 대로 해시맵 업데이트하기

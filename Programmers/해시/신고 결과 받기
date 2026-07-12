@@ -1,0 +1,35 @@
+import java.io.*;
+import java.util.*;
+
+class 신고 결과 받기 {
+    public int[] solution(String[] id_list, String[] report, int k) {
+        // <유저, 해당 유저를 신고한 유저 id set> reporter
+        Map<String, Set<String>> reporter = new HashMap<>();
+        for (String s : report) {
+            String[] cmd = s.split(" ");
+            Set<String> hashset
+                = reporter.getOrDefault(cmd[1], new HashSet<>());
+            hashset.add(cmd[0]);
+            reporter.put(cmd[1], hashset);
+        }
+        // <유저, 메일 횟수> mail
+        Map<String, Integer> mail = new HashMap<>();
+        
+        // reporter를 순회하면서 set의 크기가 2 이상이면 reporter의 각 아이디를 키로하는 mail값을 + 1
+        for (Map.Entry<String, Set<String>> entry : reporter.entrySet()) {
+            if (entry.getValue().size() >= k) {
+                for (String id : entry.getValue()) {
+                    mail.put(id, mail.getOrDefault(id, 0) + 1);
+                }
+            }
+        }
+        
+        int[] answer = new int[id_list.length];
+
+        for (int i = 0; i < id_list.length; i++) {
+            answer[i] = mail.getOrDefault(id_list[i], 0);
+        }
+
+        return answer;
+    }
+}

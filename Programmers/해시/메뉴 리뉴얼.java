@@ -34,7 +34,7 @@ class Solution {
         .max(Comparator.comparingInt(o -> o))
         .ifPresent(cnt -> count.entrySet()
                    .stream()
-                   .filter(entry -> cnt.equals(entry.getValue()) && cnt < 1)
+                   .filter(entry -> cnt.equals(entry.getValue()) && cnt > 1)
                    .forEach(entry -> answer.add(entry.getKey())));
     }
 

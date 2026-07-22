@@ -1,0 +1,29 @@
+import java.io.*;
+import java.util.*;
+
+class 다단계 칫솔 판매 {
+    public int[] solution(String[] enroll, String[] referral, String[] seller, int[] amount) {
+        Map<String, String> parent = new HashMap<>();
+        for (int i = 0; i < enroll.length; i++) {
+            parent.put(enroll[i], referral[i]);
+        }
+        
+        Map<String, Integer> total = new HashMap<>();
+        for (int i = 0; i < seller.length; i++) {
+            String s = seller[i];
+            int sales = 100 * amount[i];
+            while (sales > 0 && !s.equals("-")) {
+                    total.put(s,
+                              total.getOrDefault(s, 0) + sales - (sales / 10));
+                    s = parent.get(s);
+                    sales /= 10;
+            }
+        }
+        
+        int[] answer = new int[enroll.length];
+        for (int i = 0; i < answer.length; i++) {
+            answer[i] = total.getOrDefault(enroll[i], 0);
+        }
+        return answer;
+    }
+}
